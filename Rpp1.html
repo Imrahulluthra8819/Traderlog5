@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Subscribe - Xperto</title>
+</head>
+<body>
+  <h1>Subscribe to Xperto Monthly Plan</h1>
+  <p>Get access to premium features and internship opportunities</p>
+
+  <button id="subscribe-btn" style="padding: 10px 20px; font-size: 16px;">Subscribe Now</button>
+
+  <!-- Razorpay Script -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+  <script>
+    async function startSubscription() {
+      // Dummy user data (can be dynamic from login, form etc.)
+      const user = {
+        name: "Rahul Luthra",
+        email: "rahul@example.com",
+        contact: "9876543210"
+      };
+
+      try {
+        const res = await fetch("/.netlify/functions/create-subscription", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(user)
+        });
+
+        const data = await res.json();
+
+        if (data.subscription_id) {
+          const options = {
+            key: "rzp_live_7oJpadczIYphAM", // Razorpay live key
+            subscription_id: data.subscription_id,
+            name: "Xperto",
+            description: "Monthly Subscription Plan",
+            image: "https://yourwebsite.com/logo.png", // Optional logo
+            handler: function (response) {
+              alert("Payment successful! ID: " + response.razorpay_payment_id);
+              // You can store this or redirect user
+            },
+            prefill: {
+              name: user.name,
+              email: user.email,
+              contact: user.contact
+            },
+            theme: {
+              color: "#3399cc"
+            }
+          };
+
+          const rzp = new Razorpay(options);
+          rzp.open();
+        } else {
+          alert("Error creating subscription: " + data.error);
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Something went wrong. Please try again later.");
+      }
+    }
+
+    document.getElementById("subscribe-btn").addEventListener("click", startSubscription);
+  </script>
+</body>
+</html>
